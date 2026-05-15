@@ -1,9 +1,10 @@
 """
 Data Loading and Validation Module.
 
-Handles two data sources:
+Handles three data sources:
 1. Default IEEE-CIS Fraud Detection dataset from data/raw/
-2. User-uploaded CSV via Streamlit file uploader
+2. Bundled sample dataset from data/sample/ (fallback when full dataset absent)
+3. User-uploaded CSV via Streamlit file uploader
 
 Validates schema, maps columns if needed, and returns a clean DataFrame
 ready for feature engineering and model training.
@@ -35,6 +36,9 @@ IEEE_COLUMN_MAP = {
 # TransactionDT is a seconds-offset from this reference date (competition data spans 2017–2019)
 _IEEE_REFERENCE_DATE = pd.Timestamp("2017-11-30")
 
+# Bundled sample dataset used as a fallback when the full Kaggle files are absent
+SAMPLE_DATASET_PATH = "data/sample/sample_40k.csv"
+
 # Candidate synonyms for each required column — used by fuzzy name matching
 _COLUMN_CANDIDATES = {
     "transaction_id": ["transaction_id", "txn_id", "trans_id", "id", "transactionid", "transaction"],
@@ -47,35 +51,57 @@ _COLUMN_CANDIDATES = {
 def load_default_dataset(path: str = "data/raw/") -> pd.DataFrame:
     """Load the IEEE-CIS fraud detection dataset from local storage.
 
-    Expects two files in the path directory:
+    First tries to load the full Kaggle dataset (two CSV files in ``path``).
+    If either file is missing, falls back to the bundled sample at
+    ``data/sample/sample_40k.csv``.
+
+    Full dataset expects:
     - train_transaction.csv (transactions with fraud labels)
     - train_identity.csv (device and identity info)
 
-    Joins both on TransactionID using a left join since not all
-    transactions have identity records.
+    Both the full dataset and the sample use IEEE-CIS column names and are
+    processed identically: joined on TransactionID, renamed to the standard
+    pipeline schema, and timestamp converted from seconds-offset to datetime.
 
     Args:
-        path: Directory containing the raw CSV files.
+        path: Directory containing the raw Kaggle CSV files.
 
     Returns:
         Cleaned DataFrame with standardized column names.
 
     Raises:
-        FileNotFoundError: If either CSV file is not found at the given path.
+        FileNotFoundError: If neither the full dataset nor the sample file
+            can be found.
     """
     txn_path = os.path.join(path, "train_transaction.csv")
     id_path = os.path.join(path, "train_identity.csv")
 
-    logger.info("Loading transaction data from %s", txn_path)
-    transactions = pd.read_csv(txn_path)
-    logger.info("Loaded %d transaction rows", len(transactions))
+    if os.path.exists(txn_path) and os.path.exists(id_path):
+        logger.info("Loading transaction data from %s", txn_path)
+        transactions = pd.read_csv(txn_path)
+        logger.info("Loaded %d transaction rows", len(transactions))
 
-    logger.info("Loading identity data from %s", id_path)
-    identity = pd.read_csv(id_path)
-    logger.info("Loaded %d identity rows", len(identity))
+        logger.info("Loading identity data from %s", id_path)
+        identity = pd.read_csv(id_path)
+        logger.info("Loaded %d identity rows", len(identity))
 
-    logger.info("Left-joining on TransactionID")
-    df = transactions.merge(identity, on="TransactionID", how="left")
+        logger.info("Left-joining on TransactionID")
+        df = transactions.merge(identity, on="TransactionID", how="left")
+    else:
+        logger.warning(
+            "Full Kaggle dataset not found in %s — falling back to sample at %s",
+            path,
+            SAMPLE_DATASET_PATH,
+        )
+        if not os.path.exists(SAMPLE_DATASET_PATH):
+            raise FileNotFoundError(
+                f"Full dataset not found in '{path}' and sample file not found at "
+                f"'{SAMPLE_DATASET_PATH}'. Download the IEEE-CIS dataset from Kaggle "
+                "or ensure the sample file is present."
+            )
+        logger.info("Loading sample dataset from %s", SAMPLE_DATASET_PATH)
+        df = pd.read_csv(SAMPLE_DATASET_PATH)
+        logger.info("Loaded %d rows from sample", len(df))
 
     df = df.rename(columns=IEEE_COLUMN_MAP)
 

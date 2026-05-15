@@ -2,6 +2,8 @@
 data/raw/
 data/processed/
 *.csv
+!data/sample/
+!data/sample/*.csv
 
 # Python
 __pycache__/
