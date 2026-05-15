@@ -881,8 +881,10 @@ def main() -> None:
 
     except FileNotFoundError:
         st.info(
-            "Default dataset not found. Place `train_transaction.csv` and "
-            "`train_identity.csv` in `data/raw/`, or upload your own CSV."
+            "No dataset found. The dashboard looks for the IEEE-CIS files in "
+            "`data/raw/` and falls back to the bundled sample in `data/sample/`. "
+            "Either add `train_transaction.csv` and `train_identity.csv` to "
+            "`data/raw/`, or upload your own CSV using the sidebar."
         )
     except ValueError as exc:
         st.error(f"Data validation error: {exc}")

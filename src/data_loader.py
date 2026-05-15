@@ -13,8 +13,13 @@ ready for feature engineering and model training.
 import os
 import difflib
 import logging
+from pathlib import Path
+
 import pandas as pd
 from typing import Optional
+
+# Repo root resolved from this file's location (src/data_loader.py → repo root)
+_REPO_ROOT = Path(__file__).parent.parent
 
 logger = logging.getLogger("fraud_dashboard")
 
@@ -36,8 +41,10 @@ IEEE_COLUMN_MAP = {
 # TransactionDT is a seconds-offset from this reference date (competition data spans 2017–2019)
 _IEEE_REFERENCE_DATE = pd.Timestamp("2017-11-30")
 
-# Bundled sample dataset used as a fallback when the full Kaggle files are absent
-SAMPLE_DATASET_PATH = "data/sample/sample_40k.csv"
+# Bundled sample dataset used as a fallback when the full Kaggle files are absent.
+# Resolved as an absolute path so it works regardless of the process working directory
+# (e.g. on Streamlit Cloud where cwd may differ from the repo root).
+SAMPLE_DATASET_PATH = _REPO_ROOT / "data" / "sample" / "sample_40k.csv"
 
 # Candidate synonyms for each required column — used by fuzzy name matching
 _COLUMN_CANDIDATES = {
@@ -93,7 +100,7 @@ def load_default_dataset(path: str = "data/raw/") -> pd.DataFrame:
             path,
             SAMPLE_DATASET_PATH,
         )
-        if not os.path.exists(SAMPLE_DATASET_PATH):
+        if not SAMPLE_DATASET_PATH.exists():
             raise FileNotFoundError(
                 f"Full dataset not found in '{path}' and sample file not found at "
                 f"'{SAMPLE_DATASET_PATH}'. Download the IEEE-CIS dataset from Kaggle "
