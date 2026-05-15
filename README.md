@@ -29,11 +29,15 @@ app.py (Streamlit UI — 5 tabs + sidebar)
   └── src/utils.py          → Shared config and helpers
 ```
 
+## Live Demo
+
+**Live Demo:** Coming soon (Streamlit Community Cloud)
+
 ## Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/financial-crime-dashboard.git
+git clone https://github.com/KwabenaO/financial-crime-dashboard.git
 cd financial-crime-dashboard
 
 # Install dependencies
@@ -74,7 +78,7 @@ Optional columns (merchant, category, customer_id) unlock additional rule-based 
 - **SMOTE for class imbalance**: preserves all real fraud cases rather than undersampling the majority class. This matters because fraud examples are scarce and losing any reduces the model's ability to learn fraud patterns.
 - **Rule engine plus ML**: mirrors how real AML systems work in banks. Business rules catch known patterns (structuring, velocity, time anomalies) while the ML model catches novel patterns the rules miss.
 - **SHAP over LIME**: TreeExplainer is exact for tree-based models and faster than perturbation-based methods. It also provides consistent explanations across runs.
-- **Realistic metrics over perfect scores**: a fraud detection model that scores 1.000 on all metrics is almost certainly overfitting or leaking data. Our dashboard shows honest numbers and explains why imperfect scores are expected.
+- **Realistic metrics over perfect scores**: a fraud detection model that scores 1.000 on all metrics is almost certainly overfitting or leaking data. The dashboard shows honest numbers and explains why imperfect scores are expected.
 - **Streamlit**: fast prototyping for dashboard interfaces and deploys free on Streamlit Community Cloud.
 
 ## Tech Stack
