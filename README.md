@@ -31,7 +31,19 @@ app.py (Streamlit UI — 5 tabs + sidebar)
 
 ## Live Demo
 
-**Live Demo:** Coming soon (Streamlit Community Cloud)
+**Live Demo:** [financial-crime-dashboard.streamlit.app](https://financial-crime-dashboard.streamlit.app)
+
+## Screenshots
+
+| Overview | Model Performance |
+|---|---|
+| ![Overview](screenshots/01_overview.png) | ![Model Performance](screenshots/02_model_performance.png) |
+
+| Visual Analytics | Single Transaction |
+|---|---|
+| ![Visual Analytics](screenshots/03_visual_analytics.png) | ![Single Transaction](screenshots/04_single_transaction.png) |
+
+![Batch Scoring](screenshots/05_batch_scoring.png)
 
 ## Quick Start
 
